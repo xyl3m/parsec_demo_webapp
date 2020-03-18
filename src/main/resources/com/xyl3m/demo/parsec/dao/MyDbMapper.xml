@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xyl3m.demo.parsec.dao.MyDbMapper">
+  <cache eviction="LRU" flushInterval="5000" size="1024" readOnly="false"/>
+
+  <resultMap id="Pagination" type="Pagination">
+    <result property="resultsTotal" column="resultsTotal" jdbcType="INTEGER"/>
+    <result property="nextOffset" column="nextOffset" jdbcType="INTEGER"/>
+  </resultMap>
+
+  <resultMap id="UserResultMap" type="User">
+    <id property="id" column="user_id" jdbcType="INTEGER"/>
+    <result property="name" column="username" jdbcType="VARCHAR"/>
+    <result property="createdTs" column="created" jdbcType="TIMESTAMP"
+      typeHandler="TimestampTypeHandler"/>
+    <result property="modifiedTs" column="modified" jdbcType="TIMESTAMP"
+      typeHandler="TimestampTypeHandler"/>
+  </resultMap>
+
+  <resultMap id="UsersResultMap" type="Users">
+    <id column="obj_id" jdbcType="INTEGER"/>
+    <association property="pagination"
+      column="offset=qOffset,limit=qLimit,resultsTotal=qResultsTotal"
+      select="getPagination"/>
+    <collection property="users" javaType="ArrayList" ofType="User" resultMap="UserResultMap"/>
+  </resultMap>
+
+  <select id="getPagination" parameterType="map" resultMap="Pagination" useCache="false">
+    <include refid="com.xyl3m.demo.parsec.dao.AnnotationMapper.annotation">
+      <property name="workFile" value="MyDbMapper"/>
+      <property name="date" value="2020-02-17T18:00"/>
+      <property name="author" value="xyl3m"/>
+    </include>
+    SELECT #{resultsTotal} AS resultsTotal,
+    CASE WHEN (#{limit} &gt; 0 AND #{offset} + #{limit} &lt; #{resultsTotal})
+    THEN #{offset} + #{limit}
+    ELSE NULL
+    END AS nextOffset
+  </select>
+
+  <select id="getUser" resultMap="UserResultMap">
+    <include refid="com.xyl3m.demo.parsec.dao.AnnotationMapper.annotation">
+      <property name="workFile" value="MyDbMapper"/>
+      <property name="date" value="2020-02-17T18:00"/>
+      <property name="author" value="xyl3m"/>
+    </include>
+    SELECT *
+    FROM PUBLIC.USERS
+    WHERE USER_ID = #{userId}
+  </select>
+  <select id="queryUsers" resultMap="UsersResultMap">
+    <include refid="com.xyl3m.demo.parsec.dao.AnnotationMapper.annotation">
+      <property name="workFile" value="MyDbMapper"/>
+      <property name="date" value="2020-02-17T18:00"/>
+      <property name="author" value="xyl3m"/>
+    </include>
+    WITH results AS (
+    SELECT 1 AS obj_id, *
+    FROM PUBLIC.USERS
+    <where>
+      <if test="userId != null">
+        USER_ID = #{userId}
+      </if>
+      <if test="username != null and username != ''">
+        <bind name="username" value="'%' + username + '%'"/>
+        USERNAME LIKE #{username}
+      </if>
+    </where>
+    ), resultsTotal AS (
+    SELECT COUNT(*) AS resultsTotal FROM results
+    )
+    SELECT *
+    FROM (
+    SELECT resultsTotal AS qResultsTotal, #{offset} AS qOffset, #{limit} AS qLimit FROM resultsTotal
+    ) AS count
+    <if test="limit > 0">
+      LEFT JOIN (
+      SELECT * FROM results
+      ORDER BY created DESC
+      LIMIT #{limit}
+      OFFSET #{offset}
+      ) AS data ON 1 = 1
+    </if>
+  </select>
+
+  <insert id="createUser" useGeneratedKeys="true" keyProperty="id" keyColumn="user_id">
+    <include refid="com.xyl3m.demo.parsec.dao.AnnotationMapper.annotation">
+      <property name="workFile" value="MyDbMapper"/>
+      <property name="date" value="2020-02-17T18:00"/>
+      <property name="author" value="xyl3m"/>
+    </include>
+    INSERT INTO PUBLIC.USERS (USERNAME) VALUES (#{user.name})
+  </insert>
+
+  <update id="updateUser">
+    <include refid="com.xyl3m.demo.parsec.dao.AnnotationMapper.annotation">
+      <property name="workFile" value="MyDbMapper"/>
+      <property name="date" value="2020-02-17T18:00"/>
+      <property name="author" value="xyl3m"/>
+    </include>
+    UPDATE PUBLIC.USERS SET USERNAME = #{user.name}, MODIFIED = CURRENT_TIMESTAMP WHERE USER_ID =
+    #{userId}
+  </update>
+
+  <delete id="deleteUser">
+    <include refid="com.xyl3m.demo.parsec.dao.AnnotationMapper.annotation">
+      <property name="workFile" value="MyDbMapper"/>
+      <property name="date" value="2020-02-17T18:00"/>
+      <property name="author" value="xyl3m"/>
+    </include>
+    DELETE FROM PUBLIC.USERS WHERE USER_ID = #{userId}
+  </delete>
+
+</mapper>

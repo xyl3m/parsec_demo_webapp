@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+  <settings>
+    <setting name="callSettersOnNulls" value="true"/>
+  </settings>
+  <typeAliases>
+    <!-- type handlers -->
+    <typeAlias type="com.xyl3m.demo.parsec.dao.mybatis.typehandler.TimestampTypeHandler"
+      alias="TimestampTypeHandler"/>
+    <!-- common -->
+    <typeAlias type="com.xyl3m.demo.parsec.parsec_generated.Pagination" alias="Pagination"/>
+    <!-- User -->
+    <typeAlias type="com.xyl3m.demo.parsec.parsec_generated.User" alias="User"/>
+    <typeAlias type="com.xyl3m.demo.parsec.parsec_generated.Users" alias="Users"/>
+  </typeAliases>
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC"/>
+      <dataSource type="com.xyl3m.demo.parsec.dao.mybatis.HikariDataSourceFactory">
+        <property name="poolName" value="HikariPool-MyDb-RO"/>
+        <!-- we use host, port, path to construct our url. -->
+        <property name="jdbcUrl" value="${url}"/>
+        <!-- Class of the driver -->
+        <property name="driverClassName" value="${driver}"/>
+        <!-- login username -->
+        <property name="username" value="${username}"/>
+        <!-- login password -->
+        <property name="password" value="${password}"/>
+        <!-- max lifetime of a connection in the pool -->
+        <property name="maxLifetime" value="${maxLifetime}"/>
+        <!-- max pool size -->
+        <property name="maximumPoolSize" value="${maxPoolSize}"/>
+        <!-- if database is read only -->
+        <property name="readOnly" value="${readOnly}"/>
+        <!-- the max number of milliseconds that a client will wait for a connection from the pool -->
+        <property name="connectionTimeout" value="5000"/>
+        <!-- Controls the default auto-commit behavior of connections returned from the pool. Default: true -->
+        <property name="autoCommit" value="false"/>
+        <!-- Max amount of time that connection will be tested for aliveness in milliseconds  -->
+        <property name="validationTimeout" value="5000"/>
+      </dataSource>
+    </environment>
+    <environment id="unitTest">
+      <transactionManager type="JDBC">
+        <property name="" value=""/>
+      </transactionManager>
+      <dataSource type="UNPOOLED">
+        <property name="driver" value="org.postgresql.Driver"/>
+        <property name="url" value="jdbc:tc:postgresql:9.6.8:///test"/>
+        <property name="username" value="u"/>
+        <property name="password" value="p"/>
+      </dataSource>
+    </environment>
+  </environments>
+  <mappers>
+    <mapper resource="com/xyl3m/demo/parsec/dao/MyDbMapper.xml"/>
+    <mapper resource="com/xyl3m/demo/parsec/dao/AnnotationMapper.xml"/>
+  </mappers>
+</configuration>

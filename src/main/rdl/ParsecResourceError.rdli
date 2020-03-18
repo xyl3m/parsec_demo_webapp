@@ -1,0 +1,23 @@
+type ParsecErrorDetail struct {
+  // detail error message
+  String message;
+
+  // invalid value path
+  String invalidValue;
+}
+
+type ParsecErrorBody struct {
+  // error code
+  Int32 code;
+
+  // error message
+  String message;
+
+  // error detail
+  Array<ParsecErrorDetail> detail;
+}
+
+type ParsecResourceError struct {
+  // error object
+  ParsecErrorBody error;
+}

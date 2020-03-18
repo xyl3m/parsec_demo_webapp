@@ -1,0 +1,29 @@
+type Pagination struct {
+  // the total number of results in all pages can be returned
+  Int32 resultsTotal;
+
+  // a value that can be used to fetch the next page
+  Int32 nextOffset (optional);
+}
+
+type User struct {
+  // user ID
+  Int32 id (optional, x_null="groups=create", x_not_null="groups=update");
+
+  // username
+  String name (x_not_null="groups=create", x_size="min=3,max=15,groups=create|update");
+
+  // created timestamp
+  String createdTs;
+
+  // modified timestamp
+  String modifiedTs;
+}
+
+type Users struct {
+  // users
+  Array<User> users;
+
+  // pagination
+  Pagination pagination;
+}

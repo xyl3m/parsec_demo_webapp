@@ -1,0 +1,74 @@
+namespace com.xyl3m.demo.parsec;
+name demo;
+version 1;
+
+include "common.rdli";
+
+// Create a user
+resource User POST "/users" (name=createUser) {
+    // user content
+    User user (x_must_validate="create");
+
+    expected CREATED;
+    exceptions {
+        ParsecResourceError BAD_REQUEST;
+        ParsecResourceError INTERNAL_SERVER_ERROR;
+    }
+}
+
+// Get user by ID
+resource User GET "/users/{id}" (name=getUser) {
+    // user ID
+    Int32 id;
+
+    expected OK;
+    exceptions {
+        ParsecResourceError BAD_REQUEST;
+        ParsecResourceError NOT_FOUND;
+        ParsecResourceError INTERNAL_SERVER_ERROR;
+    }
+}
+
+// Query users
+resource Users GET "/users?id={id}&name={name}&offset={offset}&limit={limit}" (name=queryUsers) {
+    // User ID
+    Int32 id (optional);
+    // User name
+    String name (optional);
+    // offset (default:0, min:0)
+    Int32 offset (optional, default=0, x_min="0");
+    // limit (default:15, min:0, max:30)
+    Int32 limit (optional, default=15, x_min="0", x_max="30");
+
+    expected OK;
+    exceptions {
+        ParsecResourceError BAD_REQUEST;
+        ParsecResourceError INTERNAL_SERVER_ERROR;
+    }
+}
+
+// Update a user
+resource User PUT "/users/{id}" (name=updateUser) {
+    // user ID
+    Int32 id;
+    // user content
+    User user (x_must_validate="update");
+
+    expected OK;
+    exceptions {
+        ParsecResourceError BAD_REQUEST;
+        ParsecResourceError INTERNAL_SERVER_ERROR;
+    }
+}
+
+// Delete user by ID
+resource User DELETE "/users/{id}" (name=deleteUser) {
+    // user ID
+    Int32 id;
+
+    expected NO_CONTENT;
+    exceptions {
+        ParsecResourceError BAD_REQUEST;
+        ParsecResourceError INTERNAL_SERVER_ERROR;
+    }
+}
